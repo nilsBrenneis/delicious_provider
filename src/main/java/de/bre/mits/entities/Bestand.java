@@ -20,12 +20,10 @@ public class Bestand {
    	@OneToOne(mappedBy="bestand",fetch = FetchType.LAZY)
    	@JsonIgnore
    	private Zutat zutat;
-    //test
     
     protected Bestand() {
     	
     }
-    
     
 	public Bestand(double menge, double mindestbestand) {
 		this.menge = menge;
@@ -40,7 +38,7 @@ public class Bestand {
 	}
 	
 	public enum Mengeneinheit {
-		l,kg,ml,g,flaschen,stueck, tonne
+		l, kg, ml, g, flaschen, stueck, tonne
 	}
 
 

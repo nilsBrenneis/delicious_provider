@@ -21,12 +21,9 @@ public class SampleData implements ApplicationListener<ContextRefreshedEvent> {
 	private MitarbeiterRepository mitarbeiterRepository;
 	@Autowired
     private ZutatRepository zutatRepository;
-	@Autowired
-	private PrivilegRepository privilegRepository;
 	
     @Override
     public void onApplicationEvent(ContextRefreshedEvent arg0) {
-
     	createData();
     }
     public SampleData() {
@@ -34,37 +31,11 @@ public class SampleData implements ApplicationListener<ContextRefreshedEvent> {
     }
     
     public void createData(){
-    	Privileg bestaendeAendern = new Privileg("Bestaende veraendern");
-    	Privileg mbSetzen = new Privileg("MB setzen");
-    	Privileg mbEinsehen = new Privileg("MB einsehen");
-    	privilegRepository.save(bestaendeAendern);
-    	privilegRepository.save(mbSetzen);
-    	privilegRepository.save(mbEinsehen);
+    	mitarbeiterRepository.save(new Mitarbeiter("Max","Mustermann","cook", new Date(),"abc123"));
+    	mitarbeiterRepository.save(new Mitarbeiter("Anna","Mueller","manager", new Date(),"abc123"));
+    	mitarbeiterRepository.save(new Mitarbeiter("Horst","Löffel","chef",new Date(),"abc123"));
     	
-    	
-    	
-    	
-    	Set<Privileg> mitarbeiter = new HashSet<Privileg>();
-    	mitarbeiter.add(bestaendeAendern);
-    	privilegRepository.save(mitarbeiter);
-    	
-    	Set<Privileg> chefkoch = new HashSet<Privileg>();
-    	chefkoch.add(mbSetzen);
-    	chefkoch.add(bestaendeAendern);
-    	privilegRepository.save(chefkoch);
-    	
-    	Set<Privileg> manager = new HashSet<Privileg>();
-    	manager.add(mbSetzen);
-    	manager.add(bestaendeAendern);
-    	manager.add(mbEinsehen);
-    	privilegRepository.save(manager);
-    	
-    	mitarbeiterRepository.save(new Mitarbeiter("Max","Mustermann","maxmu", new Date(),manager));
-    	mitarbeiterRepository.save(new Mitarbeiter("Chef","Koch","chef", new Date(),chefkoch));
-    	mitarbeiterRepository.save(new Mitarbeiter("Horst","Heinrich","hohe",new Date(),mitarbeiter));
-    	
-    	
-    	
+
     	Saisonverfuegbarkeit ganzesjahr = new Saisonverfuegbarkeit(true,true,true,true,true,true,true,true,true,true,true,true);
     	
     	Zutat kartoffeln = new Zutat("Kartoffeln", "Nachtschattengewaechse");
@@ -79,22 +50,39 @@ public class SampleData implements ApplicationListener<ContextRefreshedEvent> {
     	Bestand karottenBestand = new BestandFactory().createBestand(karotten, 400, 100, "kg");
     	karotten.setBestand(karottenBestand);
     	
-    	Zutat rindersteak = new Zutat("Rindersteak", "Nachtschattengewaechse",ganzesjahr);
-    	Bestand rindersteakBestand = new BestandFactory().createBestand(rindersteak, 300, 80, "kg");
-    	rindersteak.setBestand(rindersteakBestand);
+    	Zutat rind = new Zutat("Rind", "Nachtschattengewaechse",ganzesjahr);
+    	Bestand rindersteakBestand = new BestandFactory().createBestand(rind, 300, 80, "kg");
+    	rind.setBestand(rindersteakBestand);
     	
     	Zutat riesling = new Zutat("Riesling", "Weisswein",ganzesjahr);
     	Bestand rieslingBestand = new BestandFactory().createBestand(riesling, 70, 50, "flaschen");
     	riesling.setBestand(rieslingBestand);
+
+		Zutat spargel = new Zutat("Spargel", "Nachtschattengewaechse");
+		Bestand spargelBestand = new BestandFactory().createBestand(spargel, 70, 10, "kg");
+		spargel.setBestand(spargelBestand);
+
+		Zutat huhn = new Zutat("Huhn", "Nachtschattengewaechse");
+		Bestand huhnBestand = new BestandFactory().createBestand(huhn, 404, 100, "stueck");
+		huhn.setBestand(huhnBestand);
+
+		Zutat hamster = new Zutat("Hamster", "Nachtschattengewaechse");
+		Bestand hamsterBestand = new BestandFactory().createBestand(hamster, 300, 500, "stueck");
+		hamster.setBestand(hamsterBestand);
+
+		Zutat hund = new Zutat("Hund", "Nachtschattengewaechse");
+		Bestand hundBestand = new BestandFactory().createBestand(hund, 100, 200, "flaschen");
+		hund.setBestand(hundBestand);
     	
     	zutatRepository.save(kartoffeln);
     	zutatRepository.save(tomaten);
     	zutatRepository.save(karotten);
-    	zutatRepository.save(rindersteak);
+    	zutatRepository.save(rind);
     	zutatRepository.save(riesling);
-    	
-       	System.out.println(mitarbeiterRepository.findByVorname("Max"));
-    		
+    	zutatRepository.save(spargel);
+		zutatRepository.save(huhn);
+		zutatRepository.save(hamster);
+		zutatRepository.save(hund);
     }
     
     

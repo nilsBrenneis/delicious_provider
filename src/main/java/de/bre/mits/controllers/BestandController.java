@@ -1,10 +1,13 @@
-package de.bre.mits.services;
+package de.bre.mits.controllers;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.bre.mits.entities.Mitarbeiter;
+import de.bre.mits.repositories.MitarbeiterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,11 +24,16 @@ import de.bre.mits.repositories.ZutatRepository;
 
 @RestController
 public class BestandController {
+
+    private static final int FAILED = 0;
+    private static final int OK = 1;
  
     @Autowired
     private ZutatRepository zutatRepository;
     @Autowired 
     private BestandRepository bestandRepository;
+    @Autowired
+    private MitarbeiterRepository mitarbeiterRepository;
     
     /**
      * Liste des kompletten Besetands
@@ -46,6 +54,23 @@ public class BestandController {
 		if (z == null) return ResponseEntity.notFound().build();
 		else return ResponseEntity.ok().body(z);
 	}
+
+    /**
+     * Meldet zurück, ob Nutzerdaten korrekt sind. Hier wird die Hashing-Funktion aufgerufen.
+     * Ursprünglich für oauth2 gedacht
+     * @return JSON array to evaulate in app
+     */
+	@RequestMapping(path="/confirmAuth", method = RequestMethod.GET)
+    public ResponseEntity<?> confirmAuth(@RequestParam("username") String username, @RequestParam("password") String password) {
+		Mitarbeiter m = mitarbeiterRepository.findByBenutzername(username);
+		if (m != null) {
+			boolean passwordCorrect = m.isPasswordOK(m, mitarbeiterRepository, username, password);
+			if(passwordCorrect) {
+				return ResponseEntity.ok().body("[{\"authenticated\":\"true\"}]");
+			}
+		}
+		return ResponseEntity.ok().body("[{\"authenticated\":\"false\"}]");
+    }
 
     /**
      * Zutat ändern
@@ -108,7 +133,7 @@ public class BestandController {
      * Neue Zutat hinzufügen
      * @return
      */
-    @RequestMapping(value = "/bestaende", method = RequestMethod.PUT)
+    @RequestMapping(value = "/neuZutat", method = RequestMethod.PUT)
     public ResponseEntity <?> persistZutat(
     		@RequestParam("bezeichnung") String bezeichnung, @RequestParam("kategorie") String kategorie,
     		@RequestParam("menge") Double menge, @RequestParam("mindestbestand") Double mindestbestand,

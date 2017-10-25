@@ -1,16 +1,9 @@
 package de.bre.mits.entities;
 
+import javax.persistence.*;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 
 @Entity
 public class Privileg {
@@ -29,7 +22,7 @@ public class Privileg {
     	this.bezeichnung=bezeichnung;
     }
     
-    public Privileg( String bezeichnung, Set<Mitarbeiter> privilegienInhaber) {
+    public Privileg(String bezeichnung, Set<Mitarbeiter> privilegienInhaber) {
 		
 		this.bezeichnung = bezeichnung;
 		this.privilegienInhaber = privilegienInhaber;

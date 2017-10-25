@@ -1,9 +1,12 @@
 package de.bre.mits.entities;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import de.bre.mits.repositories.MitarbeiterRepository;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.*;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -22,11 +25,18 @@ public class Mitarbeiter {
     private String name;
     private String benutzername;
     private Date geburtsDatum;
-    
-    @ManyToMany(cascade=CascadeType.MERGE, fetch=FetchType.EAGER)
-    private Set<Privileg> nutzerprivilegien = new HashSet<Privileg>();
+    private String passwortHash;
 
+	@ManyToMany(cascade=CascadeType.MERGE, fetch=FetchType.EAGER)
+	private Set<Privileg> nutzerprivilegien = new HashSet<Privileg>();
 
+    private int loginTries;
+    private static final int MAX_LOGIN_TRIES = 3;
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     
     protected Mitarbeiter() {
@@ -34,23 +44,15 @@ public class Mitarbeiter {
     }
     
     
-    public Mitarbeiter(String vorname, String name, String benutzername, Date geburtsDatum) {
+    public Mitarbeiter(String vorname, String name, String benutzername, Date geburtsDatum, String passwortHash) {
 		super();
 		this.vorname = vorname;
 		this.name = name;
 		this.benutzername = benutzername;
 		this.geburtsDatum = geburtsDatum;
+		this.passwortHash = passwordEncoder().encode(passwortHash);
     }
-    
-    public Mitarbeiter(String vorname, String name, String benutzername, Date geburtsDatum,
-			Set<Privileg> nutzerprivilegien) {
-		super();
-		this.vorname = vorname;
-		this.name = name;
-		this.benutzername = benutzername;
-		this.geburtsDatum = geburtsDatum;
-		this.nutzerprivilegien = nutzerprivilegien;
-	}
+
 
 
 	public long getId() {
@@ -93,24 +95,33 @@ public class Mitarbeiter {
 		this.geburtsDatum = geburtsDatum;
 	}
 
-	public Set<Privileg> getNutzerprivilegien() {
-        return Collections.unmodifiableSet(nutzerprivilegien);
+    public String getPasswortHash() {
+        return passwortHash;
     }
 
-    public void addNutzerprivilegien(Privileg p) {
-        if (!nutzerprivilegien.contains(p)) {
-            nutzerprivilegien.add(p);
-            p.addPrivilegienInhaber(this);
-        }
-    }
+	public void addNutzerprivilegien(Privileg p) {
+		if (!nutzerprivilegien.contains(p)) {
+			nutzerprivilegien.add(p);
+			p.addPrivilegienInhaber(this);
+		}
+	}
 
-    public void removeNutzerPrivilegien (Privileg p) {
-        if (nutzerprivilegien.contains(p)) {
-            nutzerprivilegien.remove(p);
-            p.removePrivilegienInhaber(this);
+	public void removeNutzerPrivilegien (Privileg p) {
+		if (nutzerprivilegien.contains(p)) {
+			nutzerprivilegien.remove(p);
+			p.removePrivilegienInhaber(this);
+		}
+	}
+
+    public boolean isPasswordOK(Mitarbeiter m, MitarbeiterRepository mitarbeiterRepository, String benutzername, String givenPassword) {
+        if (loginTries < MAX_LOGIN_TRIES && BCrypt.checkpw(givenPassword, passwortHash)) {
+            return true;
+        } else {
+            loginTries++;
+            mitarbeiterRepository.save(m);
+            return false;
         }
     }
-    
     
     public String toString(){
     	return vorname + " "+ name;
